@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global transitions and scrollbar overrides */
+body {
+  margin: 0;
+}
+
+button, a, input, textarea, select {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Webkit scrollbar for a cleaner premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Slide in animation utility */
+@keyframes slideIn {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
