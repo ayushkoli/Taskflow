@@ -10,6 +10,9 @@ import DeleteModal from './components/DeleteModal';
 function App() {
   // --- STATES & STYLES ---
 
+  // Mobile layout tab switcher state ('notes' or 'todos')
+  const [activeMobileTab, setActiveMobileTab] = useState('notes');
+
   // Notes States
   const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -237,250 +240,302 @@ function App() {
             <line x1="16" y1="17" x2="8" y2="17" />
             <line x1="10" y1="9" x2="8" y2="9" />
           </svg>
-          {/* App Title */}
           <h1 className="text-lg font-extrabold tracking-tight">Taskflow</h1>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-semibold text-slate-350">
+        {/* Hidden on very small screens to avoid header squishing */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-semibold text-slate-350">
           <Calendar className="w-3.5 h-3.5 text-slate-500" />
           <span>{getTodayDate()}</span>
         </div>
       </header>
 
-      {/* 2. Main Content Split Panel */}
-      <main className="flex-1 max-w-7xl mx-auto w-full p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* ================= NOTES SECTION (LEFT COLUMN) ================= */}
-        <section className="lg:col-span-2 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
+      {/* 2. Main Body Content */}
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
+
+        {/* Tab Selection Switcher (Visible ONLY on Mobile/Tablet views, hides on desktop screens) */}
+        <div className="flex bg-neutral-900 p-1 border border-neutral-800 rounded-xl lg:hidden text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => setActiveMobileTab('notes')}
+            className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              activeMobileTab === 'notes' ? 'bg-neutral-800 text-slate-100 border border-neutral-700/60' : 'text-slate-450 hover:text-slate-200'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span>Sticky Notes</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMobileTab('todos')}
+            className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              activeMobileTab === 'todos' ? 'bg-neutral-800 text-slate-100 border border-neutral-700/60' : 'text-slate-450 hover:text-slate-200'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+              <path d="M9 14h6" />
+              <path d="M9 10h6" />
+              <path d="M9 18h4" />
+            </svg>
+            <span>Tasks Checklist</span>
+          </button>
+        </div>
+
+        {/* Split Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          
+          {/* ================= NOTES SECTION (LEFT COLUMN) ================= */}
+          <section 
+            className={`lg:col-span-2 space-y-6 lg:block ${
+              activeMobileTab === 'notes' ? 'block' : 'hidden'
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <h2 className="text-xl font-bold">My Sticky Notes</h2>
+              
+              <button
+                onClick={openCreateNote}
+                className="px-4 py-2.5 text-xs font-bold text-black bg-white hover:bg-neutral-100 rounded-xl shadow-lg flex items-center justify-center gap-1.5 self-start sm:self-auto transition-all duration-150"
+              >
+                <Plus className="w-4 h-4" /> Add Sticky Note
+              </button>
             </div>
-            
-            <button
-              onClick={openCreateNote}
-              className="px-4 py-2.5 text-xs font-bold text-black bg-white hover:bg-neutral-100 rounded-xl shadow-lg flex items-center justify-center gap-1.5 self-start sm:self-auto transition-all duration-150"
-            >
-              <Plus className="w-4 h-4" /> Add Sticky Note
-            </button>
-          </div>
 
-          {/* Search bar */}
-          <div className="relative max-w-sm w-full">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search sticky notes by title..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-2 w-full bg-neutral-900/60 border border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-500/10 focus:border-slate-700 text-slate-100 placeholder-slate-650"
-            />
-          </div>
-
-          {/* Sticky Notes Grid */}
-          {notesLoading ? (
-            <div className="flex items-center justify-center min-h-[250px]">
-              <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
+            {/* Search bar */}
+            <div className="relative max-w-sm w-full">
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search sticky notes by title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 pr-4 py-2 w-full bg-neutral-900/60 border border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-500/10 focus:border-slate-700 text-slate-100 placeholder-slate-500"
+              />
             </div>
-          ) : notes.length === 0 ? (
-            /* Notes Empty State */
-            <div className="flex flex-col items-center justify-center py-20 text-center bg-neutral-900/40 border border-neutral-800/80 rounded-2xl shadow-inner">
-              <span className="text-3xl" role="img" aria-label="empty note">📝</span>
-              <h3 className="text-sm font-bold mt-3 text-slate-200">No sticky notes found</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs px-4">
-                {debouncedSearch 
-                  ? `No sticky notes match the title "${debouncedSearch}".`
-                  : "Add your first sticky note to hold reference thoughts."
+
+            {/* Sticky Notes Grid */}
+            {notesLoading ? (
+              <div className="flex items-center justify-center min-h-[250px]">
+                <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
+              </div>
+            ) : notes.length === 0 ? (
+              /* Notes Empty State */
+              <div className="flex flex-col items-center justify-center py-20 text-center bg-neutral-900/40 border border-neutral-800/80 rounded-2xl shadow-inner">
+                <div className="w-12 h-12 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-center text-slate-500 mb-2">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <line x1="10" y1="9" x2="8" y2="9" />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-bold mt-3 text-slate-200">No sticky notes found</h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-xs px-4">
+                  {debouncedSearch 
+                    ? `No sticky notes match the title "${debouncedSearch}".`
+                    : "Add your first sticky note to hold reference thoughts."
                 }
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Cards Grid */}
-              <div className="grid gap-5 sm:grid-cols-2">
-                {notes.map((note) => {
-                  const style = colorClasses[note.color] || colorClasses.yellow;
-                  return (
-                    <div
-                      key={note._id}
-                      className={`relative border rounded-2xl p-5 flex flex-col justify-between min-h-[190px] shadow-sm transform hover:scale-[1.02] hover:-rotate-1 hover:shadow-md transition-all duration-200 group ${style.card}`}
-                    >
-                      {/* Decorative Sticky Pin Pinpoint */}
-                      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center justify-center">
-                        <div className={`w-2 h-2 rounded-full shadow-inner ${style.dot}`}></div>
-                      </div>
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Cards Grid */}
+                <div className="grid gap-5 sm:grid-cols-2">
+                  {notes.map((note) => {
+                    const style = colorClasses[note.color] || colorClasses.yellow;
+                    return (
+                      <div
+                        key={note._id}
+                        className={`relative border rounded-2xl p-5 flex flex-col justify-between min-h-[190px] shadow-sm transform hover:scale-[1.02] hover:-rotate-1 hover:shadow-md transition-all duration-200 group ${style.card}`}
+                      >
+                        {/* Decorative Sticky Pin Pinpoint */}
+                        <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                          <div className={`w-2 h-2 rounded-full shadow-inner ${style.dot}`}></div>
+                        </div>
 
-                      {/* Header Title */}
-                      <div className="pt-2">
-                        <h4 className="font-bold text-sm tracking-tight line-clamp-1">{note.title}</h4>
-                        {/* Description Content */}
-                        <p className="text-xs mt-2.5 leading-relaxed font-semibold whitespace-pre-wrap line-clamp-5">
-                          {note.description}
-                        </p>
-                      </div>
+                        {/* Header Title */}
+                        <div className="pt-2">
+                          <h4 className="font-bold text-sm tracking-tight line-clamp-1">{note.title}</h4>
+                          {/* Description Content */}
+                          <p className="text-xs mt-2.5 leading-relaxed font-semibold whitespace-pre-wrap line-clamp-5">
+                            {note.description}
+                          </p>
+                        </div>
 
-                      {/* Bottom Footer metadata & tools */}
-                      <div className={`mt-5 pt-3.5 border-t border-dashed flex items-center justify-between text-[10px] font-bold text-black/50 ${style.accent}`}>
-                        <span>
-                          {new Date(note.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </span>
-                        
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => openEditNote(note)}
-                            className="p-1 rounded-md hover:bg-black/5 text-black/70"
-                            title="Edit Note"
-                          >
-                            <Pencil className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={() => requestDelete('note', note)}
-                            className="p-1 rounded-md hover:bg-black/10 text-black/70"
-                            title="Delete Note"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                        {/* Bottom Footer metadata & tools */}
+                        <div className={`mt-5 pt-3.5 border-t border-dashed flex items-center justify-between text-[10px] font-bold text-black/50 ${style.accent}`}>
+                          <span>
+                            {new Date(note.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                          
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => openEditNote(note)}
+                              className="p-1.5 rounded-md hover:bg-black/5 text-black/70 focus:outline-none"
+                              title="Edit Note"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => requestDelete('note', note)}
+                              className="p-1.5 rounded-md hover:bg-black/10 text-black/70 focus:outline-none"
+                              title="Delete Note"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                {/* Simple notes pagination */}
+                {notesTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-1">
+                    <button
+                      onClick={() => setNotesPage(prev => Math.max(prev - 1, 1))}
+                      disabled={notesPage === 1}
+                      className="p-1.5 border border-neutral-800 rounded-lg bg-neutral-900/60 text-slate-350 hover:bg-neutral-800 disabled:opacity-50"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-xs font-bold text-slate-200 px-3 py-1 bg-neutral-900/60 border border-neutral-800 rounded-lg">
+                      {notesPage} / {notesTotalPages}
+                    </span>
+                    <button
+                      onClick={() => setNotesPage(prev => Math.min(prev + 1, notesTotalPages))}
+                      disabled={notesPage === notesTotalPages}
+                      className="p-1.5 border border-neutral-800 rounded-lg bg-neutral-900/60 text-slate-350 hover:bg-neutral-800 disabled:opacity-50"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* ================= TODOS CHECKLIST (RIGHT COLUMN) ================= */}
+          <section 
+            className={`space-y-6 lg:block ${
+              activeMobileTab === 'todos' ? 'block' : 'hidden'
+            }`}
+          >
+            <div className="p-5 sm:p-6 bg-neutral-900/40 border border-neutral-800/80 rounded-2xl shadow-lg backdrop-blur-md">
+              <div className="border-b border-neutral-800/80 pb-3.5 mb-4">
+                <h2 className="text-base font-extrabold text-slate-100">Task Checklist</h2>
+                <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                  {totalTodosCount > 0 
+                    ? `${completedTodosCount} of ${totalTodosCount} tasks completed`
+                    : 'Zero agenda items'
+                  }
+                </p>
               </div>
 
-              {/* Simple notes pagination */}
-              {notesTotalPages > 1 && (
-                <div className="flex items-center justify-center gap-1">
+              {/* Inline Add Todo Form */}
+              <form onSubmit={handleTodoSubmit} className="flex gap-1.5 mb-5">
+                <input
+                  type="text"
+                  placeholder="Add a new task..."
+                  value={newTodoText}
+                  onChange={(e) => setNewTodoText(e.target.value)}
+                  maxLength={80}
+                  className="px-3 py-2 flex-1 bg-neutral-950 border border-neutral-850 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-500/10 focus:border-neutral-700 text-slate-100 placeholder-slate-500"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="px-3.5 py-2 text-xs font-bold text-black bg-white hover:bg-neutral-100 rounded-xl"
+                >
+                  Add
+                </button>
+              </form>
+
+              {/* Filter Tabs */}
+              <div className="flex gap-1 bg-neutral-950 p-1 border border-neutral-850 rounded-xl mb-4 text-[10px] font-bold">
+                {['all', 'pending', 'completed'].map((tab) => (
                   <button
-                    onClick={() => setNotesPage(prev => Math.max(prev - 1, 1))}
-                    disabled={notesPage === 1}
-                    className="p-1.5 border border-neutral-800 rounded-lg bg-neutral-900/60 text-slate-350 hover:bg-neutral-800 disabled:opacity-50"
+                    key={tab}
+                    type="button"
+                    onClick={() => setTodoFilter(tab)}
+                    className={`flex-1 py-1.5 rounded-lg capitalize transition-all focus:outline-none ${
+                      todoFilter === tab
+                        ? 'bg-neutral-900 text-slate-100 shadow-sm border border-neutral-800/60'
+                        : 'text-slate-455 hover:text-slate-200'
+                    }`}
                   >
-                    <ChevronLeft className="w-3.5 h-3.5" />
+                    {tab}
                   </button>
-                  <span className="text-xs font-bold text-slate-200 px-3 py-1 bg-neutral-900/60 border border-neutral-800 rounded-lg">
-                    {notesPage} / {notesTotalPages}
-                  </span>
-                  <button
-                    onClick={() => setNotesPage(prev => Math.min(prev + 1, notesTotalPages))}
-                    disabled={notesPage === notesTotalPages}
-                    className="p-1.5 border border-neutral-800 rounded-lg bg-neutral-900/60 text-slate-350 hover:bg-neutral-800 disabled:opacity-50"
-                  >
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                ))}
+              </div>
+
+              {/* Todo items list */}
+              {todosLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
+                </div>
+              ) : todos.length === 0 ? (
+                /* Todos Empty State */
+                <div className="flex flex-col items-center justify-center py-10 text-center border border-dashed border-neutral-800 rounded-xl bg-neutral-950/20">
+                  <ClipboardList className="w-5 h-5 text-slate-500" />
+                  <p className="text-[11px] font-semibold text-slate-400 mt-2">No tasks found</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                  {todos.map((todo) => (
+                    <div
+                      key={todo._id}
+                      className={`flex items-center justify-between p-3 border rounded-xl transition-all duration-150 group bg-neutral-950/30 ${
+                        todo.completed ? 'border-neutral-850/60 bg-neutral-950/10' : 'border-neutral-850 hover:border-neutral-750'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleTodo(todo._id, todo.completed)}
+                          className="flex-shrink-0 text-slate-500 hover:text-slate-350 focus:outline-none"
+                        >
+                          {todo.completed ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-neutral-600 hover:text-slate-400" />
+                          )}
+                        </button>
+                        
+                        <span className={`text-xs font-semibold truncate select-none leading-none pr-2 ${
+                          todo.completed ? 'line-through text-slate-500 font-medium' : 'text-slate-200'
+                        }`}>
+                          {todo.task}
+                        </span>
+                      </div>
+
+                      {/* Delete button: always visible on mobile, fades on desktop hover */}
+                      <button
+                        type="button"
+                        onClick={() => requestDelete('todo', todo)}
+                        className="p-1 rounded-md text-slate-500 hover:text-rose-450 hover:bg-rose-950/20 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-          )}
-        </section>
+          </section>
 
-        {/* ================= TODOS CHECKLIST (RIGHT COLUMN) ================= */}
-        <section className="space-y-6">
-          <div className="p-6 bg-neutral-900/40 border border-neutral-800/80 rounded-2xl shadow-lg backdrop-blur-md">
-            <div className="border-b border-neutral-800/80 pb-3.5 mb-4">
-              <h2 className="text-base font-extrabold text-slate-100">Task Checklist</h2>
-              <p className="text-[10px] font-bold text-slate-400 mt-0.5">
-                {totalTodosCount > 0 
-                  ? `${completedTodosCount} of ${totalTodosCount} tasks completed`
-                  : 'Zero agenda items'
-                }
-              </p>
-            </div>
-
-            {/* Inline Add Todo Form */}
-            <form onSubmit={handleTodoSubmit} className="flex gap-1.5 mb-5">
-              <input
-                type="text"
-                placeholder="Add a new task..."
-                value={newTodoText}
-                onChange={(e) => setNewTodoText(e.target.value)}
-                maxLength={80}
-                className="px-3 py-2 flex-1 bg-neutral-950 border border-neutral-850 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-500/10 focus:border-neutral-700 text-slate-100 placeholder-slate-500"
-                required
-              />
-              <button
-                type="submit"
-                className="px-3.5 py-2 text-xs font-bold text-black bg-white hover:bg-neutral-100 rounded-xl"
-              >
-                Add
-              </button>
-            </form>
-
-            {/* Filter Tabs */}
-            <div className="flex gap-1 bg-neutral-950 p-1 border border-neutral-850 rounded-xl mb-4 text-[10px] font-bold">
-              {['all', 'pending', 'completed'].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setTodoFilter(tab)}
-                  className={`flex-1 py-1.5 rounded-lg capitalize transition-all focus:outline-none ${
-                    todoFilter === tab
-                      ? 'bg-neutral-900 text-slate-100 shadow-sm border border-neutral-800/60'
-                      : 'text-slate-450 hover:text-slate-200'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Todo items list */}
-            {todosLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
-              </div>
-            ) : todos.length === 0 ? (
-              /* Todos Empty State */
-              <div className="flex flex-col items-center justify-center py-10 text-center border border-dashed border-neutral-800 rounded-xl bg-neutral-950/20">
-                <ClipboardList className="w-5 h-5 text-slate-500" />
-                <p className="text-[11px] font-semibold text-slate-400 mt-2">No tasks found</p>
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                {todos.map((todo) => (
-                  <div
-                    key={todo._id}
-                    className={`flex items-center justify-between p-3 border rounded-xl transition-all duration-150 group bg-neutral-950/30 ${
-                      todo.completed ? 'border-neutral-850/60 bg-neutral-950/10' : 'border-neutral-850 hover:border-neutral-750'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleTodo(todo._id, todo.completed)}
-                        className="flex-shrink-0 text-slate-500 hover:text-slate-350 focus:outline-none"
-                      >
-                        {todo.completed ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-neutral-600 hover:text-slate-400" />
-                        )}
-                      </button>
-                      
-                      <span className={`text-xs font-semibold truncate select-none leading-none ${
-                        todo.completed ? 'line-through text-slate-500 font-medium' : 'text-slate-200'
-                      }`}>
-                        {todo.task}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => requestDelete('todo', todo)}
-                      className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-950/20 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
+        </div>
       </main>
 
       {/* ================= MODALS & OVERLAYS ================= */}
@@ -493,7 +548,7 @@ function App() {
             onClick={() => setIsNoteModalOpen(false)}
           ></div>
           
-          <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all animate-slide-in">
+          <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl transform transition-all animate-slide-in">
             <div className="flex items-center justify-between border-b border-neutral-800 pb-3 mb-4">
               <h3 className="text-base font-bold text-slate-100">
                 {noteFormMode === 'create' ? 'Create Sticky Note' : 'Edit Sticky Note'}
@@ -539,7 +594,6 @@ function App() {
                 <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Sticky Note Color</label>
                 <div className="flex gap-2.5">
                   {Object.keys(colorClasses).map((col) => {
-                    // Map background dot colors
                     const dotColors = {
                       yellow: 'bg-amber-300',
                       pink: 'bg-rose-350',
