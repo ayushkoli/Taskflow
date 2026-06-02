@@ -275,19 +275,38 @@ function App() {
         </button>
 
         {/* Showcase Badges */}
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-3 max-w-lg z-10">
-          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
-            📌 Sticky Notes
-          </span>
-          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
-            ✅ Task Checklists
-          </span>
-          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
-            🎨 Pastel Colors
-          </span>
-          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
-            🔍 Title Search
-          </span>
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-3.5 max-w-lg z-10 text-[10px] font-bold text-slate-350 tracking-wider uppercase">
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900/60 border border-neutral-800/80 rounded-xl backdrop-blur-sm">
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span>Sticky Notes</span>
+          </div>
+
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900/60 border border-neutral-800/80 rounded-xl backdrop-blur-sm">
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span>Task Checklists</span>
+          </div>
+
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900/60 border border-neutral-800/80 rounded-xl backdrop-blur-sm">
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              <path d="M2 12h20" />
+            </svg>
+            <span>Pastel Colors</span>
+          </div>
+
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900/60 border border-neutral-800/80 rounded-xl backdrop-blur-sm">
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span>Title Search</span>
+          </div>
         </div>
 
         {/* Small credit footer */}
