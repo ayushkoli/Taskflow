@@ -10,6 +10,9 @@ import DeleteModal from './components/DeleteModal';
 function App() {
   // --- STATES & STYLES ---
 
+  // Navigation View State: 'landing' (minimal home) or 'workspace' (sticky board)
+  const [currentView, setCurrentView] = useState('landing');
+
   // Mobile layout tab switcher state ('notes' or 'todos')
   const [activeMobileTab, setActiveMobileTab] = useState('notes');
 
@@ -105,12 +108,16 @@ function App() {
 
   // Initial mount load triggers
   useEffect(() => {
-    fetchNotes();
-  }, [debouncedSearch, notesPage]);
+    if (currentView === 'workspace') {
+      fetchNotes();
+    }
+  }, [debouncedSearch, notesPage, currentView]);
 
   useEffect(() => {
-    fetchTodos();
-  }, [todoFilter]);
+    if (currentView === 'workspace') {
+      fetchTodos();
+    }
+  }, [todoFilter, currentView]);
 
   // Handle Note Save (Create or Update)
   const handleNoteSubmit = async (e) => {
@@ -226,31 +233,103 @@ function App() {
   const totalTodosCount = todos.length;
   const completedTodosCount = todos.filter(t => t.completed).length;
 
-  return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-neutral-950 via-[#0d0d0f] to-black text-slate-100">
-      
-      {/* 1. Navbar (Premium black blur) */}
-      <header className="sticky top-0 z-30 h-16 px-6 bg-black/60 backdrop-blur-md border-b border-neutral-800/80 shadow-md flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Notes SVG Icon */}
-          <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  // --- RENDER VIEWS ---
+
+  // 1. Minimal Landing Page View
+  if (currentView === 'landing') {
+    return (
+      <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-neutral-950 via-[#0d0d0f] to-black text-slate-100 p-6 text-center overflow-hidden animate-slide-in">
+        
+        {/* Glow Ambient Effects */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-slate-500/5 blur-[120px] pointer-events-none"></div>
+
+        {/* Logo Branding */}
+        <div className="flex items-center gap-3.5 mb-6 z-10">
+          <svg className="w-9 h-9 text-slate-350" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="16" y1="13" x2="8" y2="13" />
             <line x1="16" y1="17" x2="8" y2="17" />
             <line x1="10" y1="9" x2="8" y2="9" />
           </svg>
-          <h1 className="text-lg font-extrabold tracking-tight">Taskflow</h1>
+          <span className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            Taskflow
+          </span>
         </div>
 
-        {/* Hidden on very small screens to avoid header squishing */}
+        {/* Main Copy */}
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight max-w-2xl leading-tight sm:leading-none text-slate-150 z-10">
+          Where thoughts meet action.
+        </h1>
+        <p className="text-sm sm:text-base text-slate-400 mt-4 max-w-md leading-relaxed z-10">
+          Jot down ideas on colorful pastel sticky notes and track your agenda with simple interactive checklists. Minimalist, distraction-free workspace.
+        </p>
+
+        {/* Action Button */}
+        <button
+          type="button"
+          onClick={() => setCurrentView('workspace')}
+          className="mt-8 px-6 py-3.5 text-sm font-bold text-black bg-white hover:bg-neutral-100 rounded-xl shadow-lg shadow-white/5 hover:scale-[1.03] transition-all duration-150 z-10"
+        >
+          Open Workspace
+        </button>
+
+        {/* Showcase Badges */}
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-3 max-w-lg z-10">
+          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
+            📌 Sticky Notes
+          </span>
+          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
+            ✅ Task Checklists
+          </span>
+          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
+            🎨 Pastel Colors
+          </span>
+          <span className="px-3.5 py-1.5 bg-neutral-900 border border-neutral-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider rounded-xl">
+            🔍 Title Search
+          </span>
+        </div>
+
+        {/* Small credit footer */}
+        <div className="absolute bottom-6 text-[10px] font-bold text-neutral-600 tracking-widest uppercase">
+          MERN Stack Application
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Active Workspace Dashboard View
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-neutral-950 via-[#0d0d0f] to-black text-slate-100">
+      
+      {/* Navbar (Premium black blur) */}
+      <header className="sticky top-0 z-30 h-16 px-6 bg-black/60 backdrop-blur-md border-b border-neutral-800/80 shadow-md flex items-center justify-between">
+        
+        {/* Clickable Brand Logo toggles Landing View */}
+        <div 
+          onClick={() => setCurrentView('landing')}
+          className="flex items-center gap-3 cursor-pointer hover:opacity-90 select-none group"
+          title="Return to home page"
+        >
+          {/* Notes SVG Icon */}
+          <svg className="w-5 h-5 text-slate-400 group-hover:text-slate-200 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <line x1="10" y1="9" x2="8" y2="9" />
+          </svg>
+          <h1 className="text-lg font-extrabold tracking-tight group-hover:text-slate-200 transition-colors">Taskflow</h1>
+        </div>
+
+        {/* Date Widget */}
         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-semibold text-slate-350">
           <Calendar className="w-3.5 h-3.5 text-slate-500" />
           <span>{getTodayDate()}</span>
         </div>
       </header>
 
-      {/* 2. Main Body Content */}
+      {/* Main Workspace split columns */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
 
         {/* Tab Selection Switcher (Visible ONLY on Mobile/Tablet views, hides on desktop screens) */}
@@ -340,7 +419,7 @@ function App() {
                   {debouncedSearch 
                     ? `No sticky notes match the title "${debouncedSearch}".`
                     : "Add your first sticky note to hold reference thoughts."
-                }
+                  }
                 </p>
               </div>
             ) : (
